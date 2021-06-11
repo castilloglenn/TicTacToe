@@ -112,7 +112,6 @@ bool placePiece(int index, string piece) {
         winner = "draw";
         gameFinished = true;
     }
-
     turn = (turn == 0) ? 1: 0;
     return true;
 }
