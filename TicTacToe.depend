@@ -1,5 +1,4 @@
 # depslib dependency file v1.0
-1623477913 source:c:\users\administrator\documents\programming\c++\codeblocks\tictactoe\main.cpp
+1623501473 source:c:\users\administrator\documents\programming\c++\codeblocks\tictactoe\main.cpp
 	<iostream>
-	<synchapi.h>
 
