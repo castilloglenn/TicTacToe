@@ -1,4 +1,5 @@
 #include <iostream>
+
 using namespace std;
 
 
@@ -7,7 +8,7 @@ string board[9];
 string validPieces[2] = {"X", "O"};
 int boardSize = sizeof(board)/sizeof(board[0]);
 int emptyFields = boardSize, turn = 0;
-bool gameFinished = false;
+bool gameFinished = false, playerAI = false;
 
 // evaluator array
 string *eval[8][3] = {
@@ -38,19 +39,48 @@ int indexFields[9][4] = {
 void clearBoard();
 void printBoard();
 bool placePiece(int index, string piece);
+void boardEvaluation(int boardIndex, string piece);
+int findBestMove();
+string boardEvaluation();
+int minimax(string board, bool isMax, int &alpha, int &beta, int &depth);
+
+
 
 int main() {
     clearBoard();
+//    // This is for player-2-player
+//    while (!gameFinished) {
+//        printBoard();
+//
+//        int move;
+//        cout << "Enter move: " << endl;
+//        cin >> move;
+//
+//        placePiece(move, validPieces[turn]);
+//    }
+    playerAI = true;
     while (!gameFinished) {
         printBoard();
 
         int move;
-        cout << "Enter move: " << endl;
-        cin >> move;
+        if (turn == 1) {
+            move = findBestMove();
+            placePiece(move, validPieces[turn]);
 
-        placePiece(move, validPieces[turn]);
+            cout << "Computer moved at index " << move << endl;
+            cout << "Enter any button to continue." << endl;
+
+            cin.ignore();
+            cin.get();
+        } else {
+            cout << "Human move: " << endl;
+            cin >> move;
+
+            placePiece(move, validPieces[turn]);
+        }
     }
     printBoard();
+    cout << "Result: " << winner << endl;
 
 
     return 0;
@@ -81,6 +111,12 @@ void printBoard() {
     );
 }
 
+/** \brief Place piece algorithm for non-ai players
+ *
+ * \param index = visual key index starting from 1-9
+ * \param piece = the visual representation of board piece
+ * \return true if the move is valid else false
+ */
 bool placePiece(int index, string piece) {
     int boardIndex = index - 1;
     if (board[boardIndex] != " " || boardIndex > 8) return false;
@@ -88,7 +124,12 @@ bool placePiece(int index, string piece) {
     board[boardIndex] = piece;
     emptyFields--;
 
-    // board evaluation
+    boardEvaluation(boardIndex, piece);
+    turn = (turn == 0) ? 1: 0;
+    return true;
+}
+
+void boardEvaluation(int boardIndex, string piece) {
     for (int evalIndex : indexFields[boardIndex]) {
         if (evalIndex != -1) {
             string
@@ -112,15 +153,23 @@ bool placePiece(int index, string piece) {
         winner = "draw";
         gameFinished = true;
     }
-    turn = (turn == 0) ? 1: 0;
-    return true;
 }
 
+string boardEvaluation() {
+    return "G";
+}
 
+int findBestMove() {
+    string boardCopy[9];
+    for (int copyIndex = 0; copyIndex < boardSize; copyIndex++) {
+        boardCopy[copyIndex] = board[copyIndex];
+    }
 
+}
 
+int minimax(string board, bool isMax, int &alpha, int &beta, int &depth) {
 
-
+}
 
 
 
