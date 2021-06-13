@@ -1,4 +1,6 @@
 #include <iostream>
+#include <bits/stdc++.h>
+#include <limits>
 
 using namespace std;
 
@@ -8,6 +10,7 @@ string board[9];
 string validPieces[2] = {"X", "O"};
 int boardSize = sizeof(board)/sizeof(board[0]);
 int emptyFields = boardSize, turn = 0;
+int scores[3] = {0, 0, 0};
 bool gameFinished = false, playerAI = false;
 
 // evaluator array
@@ -40,53 +43,55 @@ void clearBoard();
 void printBoard();
 bool placePiece(int index, string piece);
 void boardEvaluation(int boardIndex, string piece);
-int findBestMove();
-string boardEvaluation(string board[]);
-int* getSpaces(string board[]);
-int minimax(string board[], bool isMax, int &alpha, int &beta, int &depth);
-
-
 
 int main() {
-    clearBoard();
-//    // This is for player-2-player
-//    while (!gameFinished) {
-//        printBoard();
-//
-//        int move;
-//        cout << "Enter move: " << endl;
-//        cin >> move;
-//
-//        placePiece(move, validPieces[turn]);
-//    }
+    printf( "\n"
+        "\tooooooooooooo  o8o                .                           .\n"
+        "\t8'   888   `8  `\"'              .o8                         .o8\n"
+        "\t     888      oooo   .ooooo.  .o888oo  .oooo.    .ooooo.  .o888oo  .ooooo.   .ooooo.\n"
+        "\t     888      `888  d88' `\"Y8   888   `P  )88b  d88' `\"Y8   888   d88' `88b d88' `88b\n"
+        "\t     888       888  888         888    .oP\"888  888         888   888   888 888ooo888\n"
+        "\t     888       888  888   .o8   888 . d8(  888  888   .o8   888 . 888   888 888    .o\n"
+        "\t     o888o     o888o `Y8bod8P'   \"888\" `Y888\"\"8o `Y8bod8P'   \"888\" `Y8bod8P' `Y8bod8P'\n\n"
+        "\n\n\t\t\t\tPress <Enter> to continue.."
+        , ""
+    );
+    cin.clear();
+    cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 
-//    // This is for player-2-computer
-//    playerAI = true;
-//    while (!gameFinished) {
-//        printBoard();
-//
-//        int move;
-//        if (turn == 1) {
-//            move = findBestMove();
-//            placePiece(move, validPieces[turn]);
-//
-//            cout << "Computer moved at index " << move << endl;
-//            cout << "Enter any button to continue." << endl;
-//
-//            cin.ignore();
-//            cin.get();
-//        } else {
-//            cout << "Human move: " << endl;
-//            cin >> move;
-//
-//            placePiece(move, validPieces[turn]);
-//        }
-//    }
-//    printBoard();
-//    cout << "Result: " << winner << endl;
+    bool gameRunning = true;
+    while (gameRunning) {
+        clearBoard();
+        // This is for player-2-player
+        while (!gameFinished) {
+            printBoard();
 
-    string board2[9] = {"X", "O", "X", "X", "X", "O", "O", "X", "X"};
-    cout << boardEvaluation(board2) << endl;
+            int move;
+            printf("\t\t[%s] Enter move index: ", validPieces[turn].c_str());
+            cin >> move;
+
+            placePiece(move, validPieces[turn]);
+        }
+
+        printBoard();
+        if (winner.compare("X") == 0) {
+            cout << "\t\tPlayer 1 Wins!" << endl;
+            scores[0]++;
+        } else if (winner.compare("O") == 0) {
+            cout << "\t\tPlayer 2 Wins!" << endl;
+            scores[1]++;
+        } else {
+            cout << "\t\tIt's a draw!" << endl;
+            scores[2]++;
+        }
+
+        string confirm;
+        cout << "\n\t\tEnter any key to continue, type \"Quit\" to exit the game.\n\t\t> ";
+        cin >> confirm;
+
+        transform(confirm.begin(), confirm.end(), confirm.begin(), ::tolower);
+        if (confirm.compare("quit") == 0) gameRunning = false;
+    }
 
     return 0;
 }
@@ -97,22 +102,24 @@ void clearBoard() {
     emptyFields = boardSize;
     gameFinished = false;
     winner = "";
+    turn = 0;
 
 }
 
 void printBoard() {
     system("cls");
     printf(
-       "+---+---+---+\n"
-       "| %s | %s | %s |\n"
-       "+---+---+---+\n"
-       "| %s | %s | %s |\n"
-       "+---+---+---+\n"
-       "| %s | %s | %s |\n"
-       "+---+---+---+\n",
-        board[0].c_str(), board[1].c_str(), board[2].c_str(),
-        board[3].c_str(), board[4].c_str(), board[5].c_str(),
-        board[6].c_str(), board[7].c_str(), board[8].c_str()
+        "\n\n\n\t\t Tic-Tac-Toe\t    GUIDE\n"
+        "\t\t+---+---+---+\t+---+---+---+\n"
+        "\t\t| %s | %s | %s |\t| 1 | 2 | 3 |\tPlayer 1: %3d points\n"
+        "\t\t+---+---+---+\t+---+---+---+\n"
+        "\t\t| %s | %s | %s |\t| 4 | 5 | 6 |\tPlayer 2: %3d points\n"
+        "\t\t+---+---+---+\t+---+---+---+\n"
+        "\t\t| %s | %s | %s |\t| 7 | 8 | 9 |\tDraws:    %3d rounds\n"
+        "\t\t+---+---+---+\t+---+---+---+\n\n",
+        board[0].c_str(), board[1].c_str(), board[2].c_str(), scores[0],
+        board[3].c_str(), board[4].c_str(), board[5].c_str(), scores[1],
+        board[6].c_str(), board[7].c_str(), board[8].c_str(), scores[2]
     );
 }
 
@@ -154,79 +161,8 @@ void boardEvaluation(int boardIndex, string piece) {
         }
     }
 
-    if (emptyFields == 0) {
+    if (emptyFields == 0 && winner == "") {
         winner = "draw";
         gameFinished = true;
     }
 }
-
-string boardEvaluation(string board[]) {
-    int staticEval[8][3] = {
-        {0, 1, 2}, {3, 4, 5}, {6, 7, 8},
-        {0, 3, 6}, {1, 4, 7}, {2, 5, 8},
-        {0, 4, 8}, {2, 4, 6}
-    };
-    int staticEvalSize = sizeof(staticEval)/sizeof(staticEval[0]);
-
-    for (int index = 0; index < staticEvalSize; index++) {
-        string
-        first = board[staticEval[index][0]],
-        second = board[staticEval[index][1]],
-        third = board[staticEval[index][2]];
-
-        int
-        firstCompare = first.compare(second),
-        secondCompare = second.compare(third);
-
-        if (firstCompare == 0 && secondCompare == 0) {
-            return second;
-        }
-    }
-
-    int *result = getSpaces(board);
-    int emptyFields2 = 0;
-
-    for (int index = 0; index < boardSize; index++)
-        if (result[index] != -1) emptyFields2++;
-
-    delete[] result;
-    if (emptyFields2 == 0) return "draw";
-    return "none";
-}
-
-int findBestMove() {
-    string boardCopy[9];
-    for (int copyIndex = 0; copyIndex < boardSize; copyIndex++) {
-        boardCopy[copyIndex] = board[copyIndex];
-    }
-
-}
-
-int* getSpaces(string board[]) {
-    int *spaceIndexes = new int[9];
-
-    for (int index = 0; index < boardSize; index++) {
-        string boardValue = board[index];
-        if (boardValue.compare(" ") == 0) {
-            spaceIndexes[index] = index;
-        } else {
-            spaceIndexes[index] = -1;
-        }
-    }
-
-    return spaceIndexes;
-}
-
-int minimax(string board, bool isMax, int &alpha, int &beta, int &depth) {
-
-}
-
-
-
-
-
-
-
-
-
-
